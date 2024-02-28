@@ -50,4 +50,10 @@ public class ReviewController {
         reviewrepo.deleteById(idreview);
     }
 
+
+    @GetMapping("get-by-book/{bookId}")
+    public List<Review> getReviewsByBookId(@PathVariable("bookId") Long bookId) {
+        return reviewrepo.findByBookId(bookId);
+    }
+
 }
