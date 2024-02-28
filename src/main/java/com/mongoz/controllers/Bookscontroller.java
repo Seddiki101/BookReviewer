@@ -1,12 +1,15 @@
 package com.mongoz.controllers;
 
 import com.mongoz.entities.Book;
+import com.mongoz.entities.Review;
 import com.mongoz.repositories.Booksrepo;
+import com.mongoz.repositories.Reviewrepositor;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @AllArgsConstructor
@@ -14,6 +17,9 @@ import java.util.List;
 public class Bookscontroller {
     @Autowired
     private Booksrepo bookrepo;
+
+    @Autowired
+    private Reviewrepositor reviewrepo;
 
     @GetMapping("get-all")
     public List<Book> getAllBooks()
@@ -45,6 +51,36 @@ public class Bookscontroller {
     {
         bookrepo.deleteById(idbook);
     }
+
+
+
+
+    @PostMapping("{idbook}/add-review")
+    public Book addReviewToBook(@PathVariable("idbook") Long idbook, @RequestBody Review review) {
+        Optional<Book> optionalBook = bookrepo.findById(idbook);
+        if (optionalBook.isPresent()) {
+            Book book = optionalBook.get();
+            review.setBookId(idbook);
+            book.getReviews().add(review);
+            return bookrepo.save(book);
+        } else {
+            // do internal logger later "Book not found with id: " + idbook
+           return null;
+        }
+    }
+
+    @DeleteMapping("{idbook}/remove-review/{idreview}")
+    public Book removeReviewFromBook(@PathVariable("idbook") Long idbook, @PathVariable("idreview") Long idreview) {
+        Optional<Book> optionalBook = bookrepo.findById(idbook);
+        if (optionalBook.isPresent()) {
+            Book book = optionalBook.get();
+            book.getReviews().removeIf(review -> review.getId().equals(idreview));
+            return bookrepo.save(book);
+        } else {
+            return null;
+        }
+    }
+
 
 
 }
